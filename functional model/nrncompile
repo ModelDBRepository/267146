@@ -1,0 +1,4 @@
+
+#! /bin/bash
+
+/home/andrea/neuron/nrn/x86_64/bin/nrnivmodl nrnMod/

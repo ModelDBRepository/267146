@@ -1,0 +1,86 @@
+
+import numpy as np
+import scipy.stats as stats
+import scipy.stats.mstats as mstats
+import matplotlib.pylab as plt
+plt.ion()
+
+mn_ana=np.load("mn_spk_anatomical.npy")
+n=len(mn_ana)
+ana_freq=[]
+ana_ina=[]
+for num in xrange(n):
+	tmp=[]
+	count=0
+	for spk in mn_ana[num]:
+		if len(spk)>2:
+			tmp.append((spk[-1]-spk[-2]))
+		else:
+			count=count+1
+		#	tmp.append(0)
+
+	ana_freq.append(tmp)
+	ana_ina.append(count)
+
+freq1=[]
+burst1=[]
+for x in ana_freq:
+	freq1.append(np.mean(x))
+	burst1.append(stats.variation(x))
+
+prob_ina=[]
+mn_prob=np.load("mn_spk_probabilistic.npy")
+n=len(mn_prob)
+prob_freq=[]
+for num in xrange(n):
+	tmp=[]
+	count=0
+	for spk in mn_prob[num]:
+		if len(spk)>2:
+			tmp.append((spk[-1]-spk[-2]))
+		else:
+			count=count+1
+		#	tmp.append(0)
+
+	prob_freq.append(tmp)
+	prob_ina.append(count)
+
+freq2=[]
+burst2=[]
+for x in prob_freq:
+	freq2.append(np.mean(x))
+	burst2.append(stats.variation(x))
+
+n1=mstats.normaltest(freq1)
+n2=mstats.normaltest(freq2)
+out=stats.ttest_ind(freq1,freq2,equal_var=False)
+
+plt.subplot(3,1,1)
+frame = plt.gca()
+x=np.linspace(14,20,100)
+n,bins,patches=plt.hist([freq1,freq2],40,label=['anatomical','probabilistic'])
+plt.xlabel("frequency")
+plt.ylabel("# of simulations")
+#frame.axes.get_xaxis().set_visible(False)
+#plt.xlim([14,19.3])
+#plt.ylim([0,np.max(n)+1])
+plt.legend()
+
+plt.subplot(3,1,(2,3))
+plt.plot(freq1,ana_ina,'.',markersize=10,label='anatomical')
+plt.plot(freq2,prob_ina,'.',markersize=10,label='probabilistic')
+#plt.plot(freq1,burst1,'.',markersize=10,label='anatomical')
+#plt.plot(freq2,burst2,'.',markersize=10,label='probabilistic')
+plt.xlabel("period")
+plt.ylabel("inactive mn")
+#plt.xlim([14,19.3])
+#plt.legend()
+
+
+
+
+
+
+
+
+

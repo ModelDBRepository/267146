@@ -1,0 +1,57 @@
+NEURON {
+    SUFFIX aIN_kFast
+    USEION k READ ek WRITE ik
+    RANGE gmax, ik
+}
+
+UNITS {
+    (mA) = (milliamp)
+    (mV) = (millivolt)
+    (S) = (siemens)
+}
+
+PARAMETER {
+    gmax = 0  (S/cm2)
+}
+
+ASSIGNED {
+    v (mV)
+    ek (mV)
+    ik (mA/cm2)
+    kf_ninf
+    kf_ntau (ms)
+     
+}
+
+STATE {
+    n
+}
+
+INITIAL {
+    ek = -80.0
+    rates()
+    n = kf_ninf
+    
+}
+
+BREAKPOINT {
+    SOLVE states METHOD cnexp
+    ik = gmax * n  * (v - ek)  
+}
+
+DERIVATIVE states {
+    rates()
+    n' =  ( kf_ninf  -  n ) /  kf_ntau
+}
+
+UNITSOFF
+PROCEDURE rates() {LOCAL alpha_n, beta_n
+    alpha_n = 3.1/(1.0 + exp((-35.5+v)/(-9.3)))
+    beta_n = 1.1/(1.0 + exp((0.98+v)/16.19))
+
+    kf_ntau = 1/( alpha_n + beta_n)
+    kf_ninf = alpha_n * kf_ntau
+}
+UNITSON
+
+
